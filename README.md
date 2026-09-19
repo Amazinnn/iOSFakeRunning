@@ -4,7 +4,7 @@ iOS 免越狱虚拟跑步（Windows 端）——在真实地图上，让 iPhone 
 
 ![](./docs/main_windows.png)
 
-> 基于 [Mythologyli/iOSFakeRun](https://github.com/Mythologyli/iOSFakeRun)（原作者 Myth，LGPL-2.1）的二次开发，
+> 基于 [Mythologyli/iOSFakeRun](https://github.com/Mythologyli/iOSFakeRun)（原作者 Mythologyli，LGPL-2.1）的二次开发，
 > 按同协议继续开源，详见 [LICENSE](./LICENSE)。
 
 ## 功能
