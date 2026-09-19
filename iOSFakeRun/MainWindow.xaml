@@ -1,0 +1,522 @@
+﻿<Window x:Class="iOSFakeRun.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
+        xmlns:local="clr-namespace:iOSFakeRun.FakeRun"
+        mc:Ignorable="d"
+        Title="iOS Fake Run" Height="760" Width="980" MinHeight="520" MinWidth="800"
+        Icon="Resources/icon.ico">
+
+    <Window.Resources>
+        <Style TargetType="{x:Type Button}"
+               BasedOn="{StaticResource {x:Type Button}}">
+            <Setter Property="FontSize" Value="16" />
+            <Setter Property="FontFamily" Value="fangsong" />
+            <Style.Resources>
+                <Style TargetType="Border">
+                    <Setter Property="CornerRadius" Value="10" />
+                </Style>
+            </Style.Resources>
+        </Style>
+
+        <Style TargetType="{x:Type Label}"
+               BasedOn="{StaticResource {x:Type Label}}">
+            <Setter Property="FontSize" Value="14" />
+            <Setter Property="FontFamily" Value="fangsong" />
+        </Style>
+
+        <Style TargetType="{x:Type TextBlock}">
+            <Setter Property="FontFamily" Value="fangsong" />
+        </Style>
+
+        <Style TargetType="{x:Type CheckBox}">
+            <Setter Property="FontFamily" Value="fangsong" />
+            <Setter Property="FontSize" Value="14" />
+            <Setter Property="Margin" Value="0,6,12,0" />
+            <Setter Property="VerticalContentAlignment" Value="Center" />
+        </Style>
+
+        <Style TargetType="{x:Type RadioButton}">
+            <Setter Property="FontFamily" Value="fangsong" />
+            <Setter Property="FontSize" Value="14" />
+            <Setter Property="Margin" Value="0,6,16,0" />
+            <Setter Property="VerticalContentAlignment" Value="Center" />
+        </Style>
+
+        <Style TargetType="{x:Type TabItem}">
+            <Setter Property="FontFamily" Value="fangsong" />
+            <Setter Property="FontSize" Value="15" />
+        </Style>
+
+        <Style TargetType="{x:Type TextBox}"
+               BasedOn="{StaticResource {x:Type TextBox}}">
+            <Setter Property="FontWeight" Value="bold" />
+        </Style>
+
+        <Style TargetType="{x:Type ProgressBar}"
+               BasedOn="{StaticResource {x:Type ProgressBar}}">
+            <Style.Resources>
+                <Style TargetType="Border">
+                    <Setter Property="CornerRadius" Value="10" />
+                </Style>
+            </Style.Resources>
+        </Style>
+
+        <!-- Names the groups inside a tab; without it a flat list of settings reads as one long pile. -->
+        <Style x:Key="SectionHeader" TargetType="{x:Type TextBlock}">
+            <Setter Property="FontFamily" Value="fangsong" />
+            <Setter Property="FontSize" Value="14" />
+            <Setter Property="FontWeight" Value="Bold" />
+            <Setter Property="Foreground" Value="#FF203040" />
+            <Setter Property="Margin" Value="0,12,0,4" />
+        </Style>
+    </Window.Resources>
+
+    <Grid>
+        <Grid.Background>
+            <ImageBrush ImageSource="/Resources/background.png" Opacity="0.8" Stretch="UniformToFill" />
+        </Grid.Background>
+
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="1.35*" />
+        </Grid.ColumnDefinitions>
+
+        <DockPanel Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2">
+            <Menu DockPanel.Dock="Top">
+                <MenuItem Header="关于">
+                    <MenuItem Name="MenuAboutAbout" Header="关于" Click="About" />
+                </MenuItem>
+            </Menu>
+        </DockPanel>
+
+        <StatusBar Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2">
+            <!-- Status text grows with the device name and service state, so wrap rather than clip. -->
+            <StatusBar.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <WrapPanel />
+                </ItemsPanelTemplate>
+            </StatusBar.ItemsPanel>
+            <StatusBarItem>
+                <TextBlock Name="StatusBarTextBlock" Text="等待连接" />
+            </StatusBarItem>
+            <Separator />
+            <StatusBarItem>
+                <TextBlock Name="TextBlockDevice" Text="设备: 未连接" />
+            </StatusBarItem>
+            <Separator />
+            <StatusBarItem>
+                <TextBlock Name="TextBlockDistance" Text="距离: 0.00 km" />
+            </StatusBarItem>
+            <Separator />
+            <StatusBarItem>
+                <TextBlock Name="TextBlockPace" Text="当前配速: --'--&quot;" />
+            </StatusBarItem>
+            <Separator />
+            <StatusBarItem>
+                <TextBlock Name="TextBlockAveragePace" Text="平均配速: --'--&quot;" />
+            </StatusBarItem>
+            <Separator />
+            <StatusBarItem>
+                <!-- Measured from the coordinates the phone was handed, so it is what the phone shows. -->
+                <TextBlock Name="TextBlockDeviceSpeed" Text="设备侧: --'--&quot;" />
+            </StatusBarItem>
+            <Separator />
+            <StatusBarItem>
+                <TextBlock Name="TextBlockTime" Text="用时: 00:00:00" />
+            </StatusBarItem>
+            <Separator />
+            <StatusBarItem>
+                <TextBlock Name="TextBlockLap" Text="圈数: -/-" />
+            </StatusBarItem>
+            <Separator />
+            <StatusBarItem>
+                <TextBlock Name="TextBlockAppleStatus" Text="Apple 设备服务: 检测中" />
+            </StatusBarItem>
+        </StatusBar>
+
+        <Grid Grid.Row="1" Grid.Column="0">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" MinHeight="56" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="1.45*" MinHeight="150" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+
+            <Label Grid.Row="0" Margin="8,4,0,0" Content="路线坐标（从路径拾取网站复制）" />
+
+            <TextBox Background="Transparent" Grid.Row="1" Margin="5,5,5,5"
+                     x:Name="TextBoxRoute" TextWrapping="Wrap" AcceptsReturn="True"
+                     VerticalScrollBarVisibility="Auto" TextChanged="RouteTextChanged" />
+
+            <!-- Interpreting the text above is a route concern, so the switch lives next to it. -->
+            <CheckBox Grid.Row="2" Margin="8,0,8,4" FontSize="13"
+                      x:Name="CheckBoxWgs84Input" Content="坐标已经是 WGS-84（跳过 BD-09 转换）"
+                      IsChecked="False" Click="RouteDatumChanged"
+                      ToolTip="路径拾取网站给出的是百度 BD-09 坐标，需要转成 WGS-84 设备才会落在正确位置。直接粘贴 GPX 或国际地图的坐标时勾选此项，否则会偏移数百米。" />
+
+            <GridSplitter Grid.Row="3" Height="8" HorizontalAlignment="Stretch"
+                          Background="Transparent" ResizeBehavior="PreviousAndNext" ResizeDirection="Rows" />
+
+            <Border Grid.Row="4" Margin="5,0,5,0" BorderBrush="#40808080" BorderThickness="1">
+                <Grid>
+                    <local:MapCanvas x:Name="Map" />
+
+                    <!--
+                      One wrapping strip instead of two anchored corners: both blocks are sized to
+                      their content, and at the minimum window width they no longer fit side by side.
+                      A Grid with no background is transparent to the mouse, so panning still works
+                      everywhere except on the blocks themselves.
+                    -->
+                    <Grid VerticalAlignment="Top" Margin="6">
+                        <WrapPanel x:Name="PanelMapOverlay">
+                            <Border Padding="6,3" Margin="0,0,6,6" Background="#D9FFFFFF" CornerRadius="6">
+                                <StackPanel Orientation="Horizontal">
+                                    <ComboBox x:Name="ComboBoxMapSource" Width="104" FontFamily="fangsong" FontSize="13"
+                                              VerticalContentAlignment="Center" SelectionChanged="MapSourceChanged" />
+                                    <Button Content="适配" FontSize="12" Padding="8,0" Margin="6,0,0,0" Click="MapFit" />
+                                    <CheckBox x:Name="CheckBoxMapFollow" Content="跟随" FontSize="12" FontWeight="Normal"
+                                              Margin="8,0,0,0" IsChecked="True" Click="MapFollowToggled" />
+                                    <Button Content="+" FontSize="14" Padding="9,0" Margin="6,0,0,0" Click="MapZoomIn" />
+                                    <Button Content="−" FontSize="14" Padding="9,0" Margin="4,0,0,0" Click="MapZoomOut" />
+                                </StackPanel>
+                            </Border>
+
+                            <!--
+                              The legend has to stay short: at the minimum window width the map is
+                              only about 325 DIP across, and a block wider than that gets clipped by
+                              the map's border instead of wrapping. The laps explanation lives in the
+                              tooltip for that reason.
+                            -->
+                            <Border Padding="6,3" Margin="0,0,0,6" Background="#D9FFFFFF" CornerRadius="6">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock FontSize="11" FontFamily="fangsong" Foreground="#FF42A5F5"
+                                               VerticalAlignment="Center" Text="— 规划路线" />
+                                    <TextBlock FontSize="11" FontFamily="fangsong" Foreground="#FFFF8F00"
+                                               VerticalAlignment="Center" Margin="8,0,0,0" Text="— 实际轨迹"
+                                               ToolTip="真正发给设备的坐标串。每圈一种颜色，六圈一循环，用来区分同一路线上的多次绕行。" />
+                                    <TextBlock x:Name="TextBlockDeviation" FontSize="11" FontFamily="fangsong"
+                                               VerticalAlignment="Center" Margin="10,0,0,0" Text="偏离 --"
+                                               ToolTip="当前坐标与路线上理想位置的直线距离，以及本次跑步的最大值。也就是实际轨迹离开规划路线多远。" />
+                                    <Button x:Name="ButtonMapClearTrail" Content="清除轨迹" FontSize="12" Padding="8,0"
+                                            Margin="10,0,0,0" Click="MapClearTrail" />
+                                </StackPanel>
+                            </Border>
+                        </WrapPanel>
+                    </Grid>
+
+                    <Border HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,5,4" Padding="4,1"
+                            Background="#B3FFFFFF" CornerRadius="3">
+                        <TextBlock x:Name="TextBlockMapAttribution" FontSize="11" Foreground="#FF303840" />
+                    </Border>
+                </Grid>
+            </Border>
+
+            <Label Grid.Row="5" Margin="8,0,0,4" x:Name="LabelRouteSummary" Content="路线: -" />
+        </Grid>
+
+        <Grid Grid.Row="1" Grid.Column="1">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+
+            <Grid Grid.Row="0">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+
+                <Button Background="Transparent" Grid.Row="0" Grid.Column="0" Margin="20,10,20,5" x:Name="ButtonLink"
+                        Click="Link">
+                    连接
+                </Button>
+                <Button Background="Transparent" Grid.Row="0" Grid.Column="1" Margin="20,10,20,5" x:Name="ButtonUnlink"
+                        Click="UnLink">
+                    断开
+                </Button>
+                <Button Background="Transparent" Grid.Row="1" Grid.Column="0" Margin="20,5,20,10"
+                        x:Name="ButtonResetLocation" Click="ResetLocation">
+                    重置定位
+                </Button>
+                <Button Background="Transparent" Grid.Row="1" Grid.Column="1" Margin="20,5,20,10" x:Name="ButtonQuit"
+                        Click="Quit">
+                    退出
+                </Button>
+            </Grid>
+
+            <ProgressBar Grid.Row="1" Margin="20,0,20,0" Name="ProgressBarRun" Height="14" />
+
+            <TabControl Grid.Row="2" Margin="12,8,12,0" x:Name="TabControlConfig"
+                        SelectionChanged="ConfigTabChanged">
+                <TabItem Header="跑步">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto">
+                        <StackPanel Margin="8">
+
+                            <TextBlock Style="{StaticResource SectionHeader}" Text="跑多少" Margin="0,2,0,4" />
+
+                            <StackPanel Orientation="Horizontal">
+                                <RadioButton x:Name="RadioButtonModeLaps" Content="按圈数" GroupName="RunMode" IsChecked="True" />
+                                <RadioButton x:Name="RadioButtonModeDistance" Content="按距离" GroupName="RunMode" />
+                            </StackPanel>
+
+                            <StackPanel x:Name="PanelLapsFields" Orientation="Horizontal" Margin="0,4,0,0">
+                                <Label Content="圈数" Width="110" />
+                                <xctk:IntegerUpDown Background="Transparent" Increment="1" Minimum="1" Value="9"
+                                                    Width="110" x:Name="IntegerUpDownRunTimes" />
+                            </StackPanel>
+
+                            <StackPanel x:Name="PanelDistanceFields" Orientation="Horizontal" Margin="0,4,0,0">
+                                <Label Content="目标距离 km" Width="110" />
+                                <xctk:DoubleUpDown Background="Transparent" Increment="0.5" Minimum="0.1" Maximum="200"
+                                                   Value="5" FormatString="0.00" Width="110"
+                                                   x:Name="DoubleUpDownDistanceKm" />
+                            </StackPanel>
+
+                            <TextBlock Style="{StaticResource SectionHeader}" Text="跑多快" />
+
+                            <!--
+                              The three speed sources share a GroupName because they cannot share a
+                              parent: each carries its own inline hint, and the panels they own sit
+                              between them. Without the name, WPF groups radios by parent, and all
+                              three would be selectable at once.
+                            -->
+                            <StackPanel Orientation="Horizontal">
+                                <RadioButton x:Name="RadioButtonSpeedConstant" Content="恒定速度" GroupName="SpeedSource"
+                                             IsChecked="True" />
+                                <TextBlock x:Name="TextBlockConstantSpeedHint" VerticalAlignment="Center"
+                                           Margin="8,6,0,0" Opacity="0.7" FontSize="12" />
+                            </StackPanel>
+
+                            <StackPanel x:Name="PanelConstantSpeed" Orientation="Horizontal" Margin="0,4,0,0">
+                                <Label Content="速度 m/s" Width="110" />
+                                <xctk:DoubleUpDown Background="Transparent" Increment="0.1" Minimum="0" Maximum="30"
+                                                   Value="3" FormatString="0.00" Width="110"
+                                                   x:Name="DoubleUpDownSpeed" />
+                            </StackPanel>
+
+                            <RadioButton x:Name="RadioButtonSpeedTargetTime" Content="目标用时" GroupName="SpeedSource" />
+
+                            <StackPanel x:Name="PanelTargetTime" Margin="0,4,0,0">
+                                <StackPanel Orientation="Horizontal">
+                                    <Label Content="目标用时 min" Width="110" />
+                                    <xctk:DoubleUpDown Background="Transparent" Increment="1" Minimum="1" Maximum="6000"
+                                                       Value="30" FormatString="0" Width="110"
+                                                       x:Name="DoubleUpDownTargetMinutes" />
+                                </StackPanel>
+                                <TextBlock x:Name="TextBlockTargetTimeHint" Margin="110,2,0,0" Opacity="0.7"
+                                           FontSize="12" TextWrapping="Wrap" />
+                            </StackPanel>
+
+                            <StackPanel Orientation="Horizontal">
+                                <RadioButton x:Name="RadioButtonSpeedTiers" Content="速度阶梯" GroupName="SpeedSource" />
+                                <TextBlock x:Name="TextBlockTierHint" VerticalAlignment="Center"
+                                           Margin="8,6,0,0" Opacity="0.7" FontSize="12" />
+                            </StackPanel>
+
+                            <StackPanel x:Name="PanelSpeedTiers" Margin="0,6,0,0">
+                                <DataGrid x:Name="DataGridSpeedTiers" Height="130" AutoGenerateColumns="False"
+                                          CanUserAddRows="False" CanUserDeleteRows="False"
+                                          HeadersVisibility="Column" GridLinesVisibility="Horizontal"
+                                          Background="Transparent" RowBackground="Transparent"
+                                          AlternatingRowBackground="#22FFFFFF">
+                                    <DataGrid.Columns>
+                                        <DataGridTextColumn Header="速度 m/s" Binding="{Binding Speed, StringFormat=0.00}"
+                                                            Width="*" />
+                                        <DataGridTextColumn Header="持续秒数" Binding="{Binding DurationSeconds}"
+                                                            Width="*" />
+                                    </DataGrid.Columns>
+                                </DataGrid>
+
+                                <StackPanel Orientation="Horizontal" Margin="0,6,0,0">
+                                    <Button Content="添加阶梯" FontSize="13" Padding="10,2" Margin="0,0,8,0"
+                                            Click="AddSpeedTier" />
+                                    <Button Content="删除选中" FontSize="13" Padding="10,2" Margin="0,0,8,0"
+                                            Click="RemoveSpeedTier" />
+                                    <Button Content="恢复默认" FontSize="13" Padding="10,2" Click="ResetSpeedTiers" />
+                                </StackPanel>
+
+                                <TextBlock TextWrapping="Wrap" Margin="0,6,0,0" Opacity="0.75"
+                                           Text="阶梯按顺序往返切换，只会切到相邻一级，级间按最大加速度平滑过渡。" />
+                            </StackPanel>
+
+                            <StackPanel x:Name="PanelSpeedCalibration" Orientation="Horizontal" Margin="0,10,0,0">
+                                <Label Content="速度校准" Width="110" />
+                                <xctk:DoubleUpDown Background="Transparent" Increment="0.01" Minimum="0.5" Maximum="2"
+                                                   Value="1" FormatString="0.00" Width="110"
+                                                   x:Name="DoubleUpDownSpeedCalibration" />
+                                <TextBlock x:Name="TextBlockSpeedCalibrationHint" VerticalAlignment="Center"
+                                           Margin="8,6,0,0" Opacity="0.7" FontSize="12" />
+                            </StackPanel>
+
+                            <TextBlock TextWrapping="Wrap" Margin="0,14,0,0" Opacity="0.75"
+                                       Text="「目标用时」要按距离模式才能用，因为它是由「距离 ÷ 时间」反过来算速度的。" />
+                            <TextBlock TextWrapping="Wrap" Margin="0,4,0,0" Opacity="0.75"
+                                       Text="「速度校准」只在你自定速度时生效：手机 App 测出的配速比设定更快，就把它调小。" />
+
+                        </StackPanel>
+                    </ScrollViewer>
+                </TabItem>
+
+                <TabItem Header="真实感">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto">
+                        <StackPanel Margin="8">
+
+                            <TextBlock Style="{StaticResource SectionHeader}" Text="轨迹" Margin="0,2,0,4" />
+
+                            <CheckBox x:Name="CheckBoxDrift" Content="路线漂移（垂直于运动方向）" IsChecked="True" />
+
+                            <StackPanel x:Name="PanelDrift" Margin="0,2,0,0">
+                                <StackPanel Orientation="Horizontal">
+                                    <Label Content="漂移幅度 m" Width="140" />
+                                    <xctk:DoubleUpDown Background="Transparent" Increment="0.5" Minimum="0" Maximum="10"
+                                                       Value="1.5" FormatString="0.0" Width="110"
+                                                       x:Name="DoubleUpDownDriftAmplitude" />
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal">
+                                    <Label Content="漂移保持最短 min" Width="140" />
+                                    <xctk:DoubleUpDown Background="Transparent" Increment="0.5" Minimum="0" Maximum="60"
+                                                       Value="1" FormatString="0.0" Width="110"
+                                                       x:Name="DoubleUpDownDriftHoldMin" />
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal">
+                                    <Label Content="漂移过渡时长 s" Width="140" />
+                                    <xctk:DoubleUpDown Background="Transparent" Increment="1" Minimum="1" Maximum="120"
+                                                       Value="15" FormatString="0" Width="110"
+                                                       x:Name="DoubleUpDownDriftTransition" />
+                                </StackPanel>
+                                <TextBlock TextWrapping="Wrap" Margin="0,4,0,0" Opacity="0.7" FontSize="12"
+                                           Text="每次漂移的保持时长在「最短」和它的 2 倍之间随机。" />
+                            </StackPanel>
+
+                            <StackPanel Orientation="Horizontal" Margin="0,6,0,0">
+                                <Label Content="转角平滑半径 m" Width="140" />
+                                <xctk:DoubleUpDown Background="Transparent" Increment="1" Minimum="0" Maximum="50"
+                                                   Value="5" FormatString="0" Width="110"
+                                                   x:Name="DoubleUpDownCornerSmoothing" />
+                            </StackPanel>
+
+                            <TextBlock Style="{StaticResource SectionHeader}" Text="速度" />
+
+                            <CheckBox x:Name="CheckBoxSpeedNoise" Content="速度波动" IsChecked="True" />
+
+                            <StackPanel x:Name="PanelSpeedNoise" Margin="0,2,0,0">
+                                <StackPanel Orientation="Horizontal">
+                                    <Label Content="速度波动幅度 %" Width="140" />
+                                    <xctk:DoubleUpDown Background="Transparent" Increment="0.5" Minimum="0" Maximum="50"
+                                                       Value="3" FormatString="0.0" Width="110"
+                                                       x:Name="DoubleUpDownSpeedNoisePercent" />
+                                </StackPanel>
+                            </StackPanel>
+
+                            <StackPanel Orientation="Horizontal" Margin="0,6,0,0">
+                                <Label Content="最大加速度 m/s²" Width="140" />
+                                <xctk:DoubleUpDown Background="Transparent" Increment="0.1" Minimum="0.1" Maximum="7"
+                                                   Value="1.5" FormatString="0.0" Width="110"
+                                                   x:Name="DoubleUpDownMaxAcceleration" />
+                            </StackPanel>
+
+                            <TextBlock Style="{StaticResource SectionHeader}" Text="定位" />
+
+                            <CheckBox x:Name="CheckBoxGpsNoise" Content="GPS 噪声" IsChecked="True" />
+
+                            <StackPanel x:Name="PanelGpsNoise" Margin="0,2,0,0">
+                                <StackPanel Orientation="Horizontal">
+                                    <Label Content="噪声标准差 m" Width="140" />
+                                    <xctk:DoubleUpDown Background="Transparent" Increment="0.5" Minimum="0" Maximum="30"
+                                                       Value="1.5" FormatString="0.0" Width="110"
+                                                       x:Name="DoubleUpDownGpsNoiseSigma" />
+                                </StackPanel>
+                            </StackPanel>
+
+                            <TextBlock TextWrapping="Wrap" Margin="0,14,0,0" Opacity="0.75"
+                                       Text="设备端只能接收经纬度，所以真实感全部体现在坐标序列上：速度不再恒定、轨迹不再笔直、转角不再生硬。" />
+
+                        </StackPanel>
+                    </ScrollViewer>
+                </TabItem>
+
+                <TabItem Header="设备">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto">
+                        <StackPanel Margin="8">
+
+                            <TextBlock Style="{StaticResource SectionHeader}" Text="Apple 设备服务" Margin="0,2,0,4" />
+
+                            <TextBlock x:Name="TextBlockAppleDetail" Text="检测中" TextWrapping="Wrap"
+                                       Opacity="0.7" FontSize="12" />
+
+                            <StackPanel Orientation="Horizontal" Margin="0,6,0,0">
+                                <Button Content="重新检测" FontSize="13" Padding="10,2" Margin="0,0,8,0"
+                                        Click="AppleDetect" />
+                                <Button Content="启动服务" FontSize="13" Padding="10,2" Margin="0,0,8,0"
+                                        Click="AppleStart" />
+                                <Button Content="停止服务" FontSize="13" Padding="10,2" Click="AppleStop" />
+                            </StackPanel>
+
+                            <CheckBox x:Name="CheckBoxStopAppleOnExit" Content="退出程序时停止 Apple 设备服务"
+                                      IsChecked="True" Margin="0,12,0,0" />
+
+                            <TextBlock TextWrapping="Wrap" Margin="0,6,0,0" Opacity="0.75"
+                                       Text="Apple 设备服务就是 usbmux 通道，本程序通过它和设备通信，退出时先重置定位再停止服务。无需管理员权限。" />
+
+                            <TextBlock Style="{StaticResource SectionHeader}" Text="地图缓存" />
+
+                            <TextBlock x:Name="TextBlockMapCache" Text="统计中..." TextWrapping="Wrap"
+                                       Opacity="0.7" FontSize="12" />
+
+                            <StackPanel Orientation="Horizontal" Margin="0,6,0,0">
+                                <Button Content="清除缓存" FontSize="13" Padding="10,2" Click="MapCacheClear" />
+                            </StackPanel>
+
+                            <TextBlock TextWrapping="Wrap" Margin="0,6,0,0" Opacity="0.75"
+                                       Text="瓦片缓存在用户目录（%LOCALAPPDATA%\iOSFakeRun\MapCache），不在程序文件夹里，所以不会把 dist 撑大。超出上限后自动删掉最旧的瓦片，不会无限增长。" />
+
+                        </StackPanel>
+                    </ScrollViewer>
+                </TabItem>
+            </TabControl>
+
+            <Grid Grid.Row="3" Margin="0,8,0,10">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+
+                <Button Background="Transparent" Grid.Column="0" Margin="20,0,10,0" x:Name="ButtonRun"
+                        Click="StartRun">
+                    开始跑步
+                </Button>
+                <Button Background="Transparent" Grid.Column="1" Margin="10,0,10,0" x:Name="ButtonPause"
+                        Click="PauseRun" Visibility="Hidden">
+                    暂停
+                </Button>
+                <Button Background="Transparent" Grid.Column="1" Margin="10,0,10,0" x:Name="ButtonResume"
+                        Click="ResumeRun" Visibility="Hidden">
+                    继续
+                </Button>
+                <Button Background="Transparent" Grid.Column="2" Margin="10,0,20,0" x:Name="ButtonStop"
+                        Click="StopRun" Visibility="Hidden">
+                    停止
+                </Button>
+            </Grid>
+        </Grid>
+    </Grid>
+</Window>

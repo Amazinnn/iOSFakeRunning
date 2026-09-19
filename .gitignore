@@ -1,0 +1,21 @@
+bin/
+obj/
+/packages/
+riderModule.iml
+/_ReSharper.Caches/
+/.idea/
+*.user
+
+# 运行时资源，约 328 MB：上游由 CI 从 Mythologyli/DeveloperDiskImage 拉取
+/DeveloperDiskImage/
+
+# 程序运行期生成
+/route.save
+/error.log
+
+# 以下为本地私有内容，不入库（严格镜像上游文件树）
+/dist/
+/tools/
+/openspec/
+/.zcode/
+/Location.txt
