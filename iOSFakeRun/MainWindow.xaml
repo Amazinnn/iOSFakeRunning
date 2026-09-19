@@ -6,7 +6,7 @@
         xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
         xmlns:local="clr-namespace:iOSFakeRun.FakeRun"
         mc:Ignorable="d"
-        Title="iOS Fake Run" Height="760" Width="980" MinHeight="520" MinWidth="800"
+        Title="iOSFakeRunning" Height="760" Width="980" MinHeight="520" MinWidth="800"
         Icon="Resources/icon.ico">
 
     <Window.Resources>
